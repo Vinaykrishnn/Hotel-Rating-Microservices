@@ -5,6 +5,7 @@ import com.user.UserService.entities.Hotel;
 import com.user.UserService.entities.Ratings;
 import com.user.UserService.entities.Users;
 import com.user.UserService.exceptions.ResourceNotFoundException;
+import com.user.UserService.external.services.HotelService;
 import com.user.UserService.repositoy.UserRepository;
 import com.user.UserService.services.UserService;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private HotelService hotelService;
 
     private org.slf4j.Logger logger = (org.slf4j.Logger) LoggerFactory.getLogger(UserServiceImpl.class);
     @Override
@@ -59,11 +63,12 @@ public class UserServiceImpl implements UserService {
             Ratings rating = mapper.convertValue(obj, Ratings.class);
 
             // Step 3: Get Hotel for each rating
-            ResponseEntity<Hotel> response = restTemplate.getForEntity(
-                    "http://HOTELSERVICE/hotels/" + rating.getHotelId(),
-                    Hotel.class
-            );
-            rating.setHotel(response.getBody());
+//            ResponseEntity<Hotel> response = restTemplate.getForEntity(
+//                    "http://HOTELSERVICE/hotels/" + rating.getHotelId(),
+//                    Hotel.class
+//            );
+            Hotel hotel = hotelService.getHotel(rating.getHotelId());
+            rating.setHotel(hotel);
             return rating;
         }).collect(Collectors.toList());
 
